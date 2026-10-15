@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Makefile targets parse
+        run: |
+          make -n
+          make -n install
+          make -n uninstall
+          make help
+      - name: Install and uninstall into a temporary prefix
+        run: |
+          prefix="$RUNNER_TEMP/prefix"
+          make install PREFIX="$prefix"
+          cmp config "$prefix/ghostty/config"
+          make uninstall PREFIX="$prefix"
+          test ! -e "$prefix/ghostty/config"

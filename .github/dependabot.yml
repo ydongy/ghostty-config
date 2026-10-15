@@ -1,0 +1,7 @@
+# The pr-title workflow skips Dependabot pull requests; the prefix keeps their titles Conventional Commits.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    commit-message: { prefix: "ci" }
